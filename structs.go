@@ -2,7 +2,8 @@ package discordrpc
 
 import (
 	"encoding/json"
-	"fmt"
+
+	"github.com/gobuffalo/uuid"
 )
 
 type RichPresenceMessageArgs struct {
@@ -81,13 +82,11 @@ type Secrets struct {
 	Spectate string `json:"spectate,omitempty"`
 }
 
-var nonceVal = 0
-
 type Nonce struct {
 	Nonce string `json:"nonce"`
 }
 
 func (n *Nonce) SetNonce() {
-	nonceVal += 1
-	n.Nonce = fmt.Sprintf("%032d", nonceVal)
+	nonceVal, _ := uuid.NewV4()
+	n.Nonce = nonceVal.String()
 }

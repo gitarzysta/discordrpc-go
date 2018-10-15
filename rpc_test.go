@@ -1,71 +1,56 @@
 package discordrpc_test
 
 import (
-	"encoding/json"
 	"fmt"
-	golang_discord_rpc "github.com/gitarzysta/discordrpc-go"
-	"os"
+	"strconv"
 	"testing"
 	"time"
+
+	rpc "github.com/gitarzysta/discordrpc-go"
 )
 
 func TestMeme(t *testing.T) {
 
-	time.Sleep(time.Second * 3)
+	//time.Sleep(time.Second * 3)
 
 	//316245861074206730
-	win := golang_discord_rpc.NewRPCConnection("368924690946850817")
-	err := win.Open()
+	//368924690946850817
+	win, err := rpc.New("430157626546847759")
+	win.Open()
+	fmt.Println(win.Connection.IsOpen())
+
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	str, err := win.Read()
-	fmt.Println(err)
-	fmt.Println(str)
+	str, err := win.Connection.Read()
+	fmt.Println("ERR", err)
+	fmt.Println("STR", str)
 
-	time.Sleep(time.Second * 3)
-
+	time.Sleep(5 * time.Second)
+	counter := 0
 	for {
-		fmt.Println(os.Getpid())
-		presence := &golang_discord_rpc.CommandRichPresenceMessage{
-			CommandMessage: golang_discord_rpc.CommandMessage{Command: "SET_ACTIVITY"},
-			Args: &golang_discord_rpc.RichPresenceMessageArgs{
-				Pid: os.Getpid(),
-				Activity: &golang_discord_rpc.Activity{
-					Details:  "Dean",
-					State:    "Proud To Be A Developer ",
-					Instance: false,
-					Assets: &golang_discord_rpc.Assets{
-						LargeText:    "Unknown Album",
-						LargeImageID: "unknown",
-						SmallText:    "Dank Memes",
-						SmallImageID: "default",
-					},
-				},
+		activity := &rpc.Activity{
+			Details: "Dean" + strconv.Itoa(counter),
+			State:   "Proud To Be A Go Developer",
+			TimeStamps: &rpc.TimeStamps{
+				StartTimestamp: time.Now().Unix(),
+				EndTimestamp:   time.Now().Add(20 * time.Second).Unix(),
 			},
 		}
-
-		presence.SetNonce()
-		data, err := json.Marshal(presence)
-
+		counter++
+		err := win.SetRichPresence(activity)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		err = win.Write(string(data))
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
+		str, err := win.Connection.Read()
 
-		str, err := win.Read()
 		fmt.Println(err)
-		fmt.Println(str)
+		fmt.Println("STR1", str)
 
 		fmt.Println("---\nDone?")
 		time.Sleep(time.Second * 20)
 	}
-
 }

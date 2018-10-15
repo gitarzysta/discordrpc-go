@@ -1,9 +1,9 @@
 package discordrpc
 
 import (
-	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -40,7 +40,7 @@ func GetTempPath() string {
 func (c *Connection) Open() error {
 	path := GetTempPath()
 	for i := 0; i < 10; i++ {
-		con, err := net.Dial("unix", path+"/discord-ipc-"+strconv.Itoa(i))
+		con, err := net.Dial("unix", filepath.Join(path, "discord-ipc-"+strconv.Itoa(i)))
 		if err == nil {
 			c.Conn = con
 			c.Connected = true
@@ -57,7 +57,6 @@ func (c *Connection) isOpen() bool {
 }
 
 func (c *Connection) Write(data []byte) (int, error) {
-	fmt.Printf("%X\n\n", data)
 	tot, err := c.Conn.Write(data)
 	if err != nil {
 		return tot, err

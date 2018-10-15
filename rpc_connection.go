@@ -130,7 +130,6 @@ func (r *RPCConnection) Open() error {
 			return err
 		} else {
 			r.State = StateSentHandshake
-			fmt.Println("Sent handshake.")
 		}
 	}
 
@@ -168,7 +167,7 @@ func (r *RPCConnection) Read() (string, error) {
 			}
 			frame.SetMessage(string(data))
 		}
-
+		fmt.Println("READ OPCODE:", frame.OpCode, "LEN:", frame.Length, data)
 		switch frame.OpCode {
 		case OpCodeClose:
 			return frame.GetMessage(), r.Close()
@@ -190,7 +189,7 @@ func (r *RPCConnection) Read() (string, error) {
 
 	}
 
-	return frame.GetMessage(), nil
+	//return frame.GetMessage(), nil
 
 }
 
@@ -209,12 +208,13 @@ func (r *RPCConnection) readData(length uint32) (data []byte, err error) {
 }
 
 func (r *RPCConnection) Write(data string) error {
-	if !r.IsOpen() && !r.Opening {
+	// TODO:
+	/*if !r.IsOpen() || !r.Opening {
 		r.Close()
 		if err := r.Open(); err != nil {
 			return err
 		}
-	}
+	}*/
 	return r.writeFrame(OpCodeFrame, data)
 }
 
@@ -237,7 +237,7 @@ func (r *RPCConnection) writeFrame(code OpCode, data string) error {
 		r.Close()
 		return err
 	}
-
+	fmt.Println("Opxcode:", code, "Len:", len(data), data)
 	return nil
 }
 
